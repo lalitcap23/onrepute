@@ -145,3 +145,6 @@ pub fn handler(ctx: Context<MintSbt>, cid: String) -> Result<()> {
 
     Ok(())
 }
+// program address --FV5sGyF543uGgyJdgfdsQhNGXrGkxY4wsBT5h4tcpjPN
+// anchor run initialize-contributor --provider.cluster devnet
+//https://explorer.solana.com/address/FV5sGyF543uGgyJdgfdsQhNGXrGkxY4wsBT5h4tcpjPN?cluster=devnet
