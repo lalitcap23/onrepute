@@ -1,8 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
-use anchor_spl::token::Mint;
-use anchor_spl::token::TokenAccount;
 use anchor_spl::token_2022::{mint_to, MintTo, Token2022};
+use anchor_spl::token_interface::{Mint, TokenAccount};
 use mpl_token_metadata::instructions::{
     CreateMetadataAccountV3, CreateMetadataAccountV3InstructionArgs,
 };
@@ -32,7 +31,7 @@ pub struct MintSbt<'info> {
         seeds = [b"mint", payer.key().as_ref()],
         bump,
     )]
-    pub mint: Account<'info, Mint>,
+    pub mint: InterfaceAccount<'info, Mint>,
 
     #[account(
         init,
@@ -41,7 +40,7 @@ pub struct MintSbt<'info> {
         associated_token::authority = payer,
         associated_token::token_program = token_program,
     )]
-    pub token_account: Account<'info, TokenAccount>,
+    pub token_account: InterfaceAccount<'info, TokenAccount>,
 
     /// CHECK: Metadata account derived from mint
     #[account(
@@ -79,6 +78,17 @@ pub fn handler(ctx: Context<MintSbt>, cid: String) -> Result<()> {
 
     // Update rewards counter
     contributor_state.total_rewards += 1;
+
+    // Initialize NonTransferable extension for true soulbound functionality
+    let init_non_transferable_ix = spl_token_2022::instruction::initialize_non_transferable_mint(
+        &spl_token_2022::ID,
+        &mint.key(),
+    )?;
+
+    anchor_lang::solana_program::program::invoke(
+        &init_non_transferable_ix,
+        &[mint.to_account_info()],
+    )?;
 
     // Mint 1 SBT to user's token account
     mint_to(

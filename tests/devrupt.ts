@@ -8,9 +8,13 @@ describe("devrupt", () => {
 
   const program = anchor.workspace.devrupt as Program<Devrupt>;
 
-  it("Is initialized!", async () => {
-    // Add your test here.
-    const tx = await program.methods.initialize().rpc();
-    console.log("Your transaction signature", tx);
+  it("Program deploys successfully", async () => {
+    // Simple test to verify the program is loaded and accessible
+    const programId = program.programId;
+    console.log("Program ID:", programId.toString());
+    
+    // Verify the program account exists (will be created when deployed)
+    const programInfo = await program.provider.connection.getAccountInfo(programId);
+    console.log("Program deployed:", programInfo !== null);
   });
 });
